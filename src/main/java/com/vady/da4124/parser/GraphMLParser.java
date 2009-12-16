@@ -1,109 +1,100 @@
 package com.vady.da4124.parser;
 
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.SAXException;
+import grail.interfaces.DirectedEdgeInterface;
+import grail.interfaces.DirectedGraphInterface;
+import grail.interfaces.DirectedNodeInterface;
+import grail.interfaces.NodeInterface;
+import grail.properties.GraphProperties;
+import grail.setbased.SetBasedDirectedGraph;
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.IOException;
 import java.io.File;
-import java.util.HashSet;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-
-import grail.interfaces.*;
-import grail.setbased.SetBasedDirectedGraph;
-import grail.properties.GraphProperties;
 
 
 public class GraphMLParser extends DefaultHandler {
 
-    private List graphs;
+    private static final Logger LOGGER = Logger.getLogger(GraphMLParser.class);
 
+    private static final String TAG_GRAPH = "graph";
+    private static final String TAG_NODE = "node";
+    private static final String TAG_EDGE = "edge";
+    private static final String ATTRIBUTE_ID = "id";
+    private static final String ATTRIBUTE_EDGE_SOURCE = "source";
+    private static final String ATTRIBUTE_EDGE_TARGET = "target";
+
+    private List graphs;
     private DirectedGraphInterface graph;
 
-    public java.util.List load(File file) {
+    public List load(File file) {
 
-        graphs = new ArrayList();
+        LOGGER.info("Parsing graphml file " + file.getAbsolutePath());
 
-		//get a factory
-		SAXParserFactory spf = SAXParserFactory.newInstance();
-		try {
+        if (graphs == null) {
+            graphs = new LinkedList();
+        } else {
+            graphs.clear();
+        }
 
-			//get a new instance of parser
-			SAXParser sp = spf.newSAXParser();
+        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+        try {
+            SAXParser saxParser = saxParserFactory.newSAXParser();
 
-			//parse the file and also register this class for call backs
-			sp.parse(file, this);
+            // parse the graphml file and also register this class for call backs
+            saxParser.parse(file, this);
 
-		}catch(SAXException se) { // TODO add logger
-			se.printStackTrace();
-		}catch(ParserConfigurationException pce) {
-			pce.printStackTrace();
-		}catch (IOException ie) {
-			ie.printStackTrace();
-		}
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
+
+        LOGGER.info("Done.");
+        LOGGER.info("Loaded " + graphs.size() + " graphs.");
 
         return graphs;
-	}
+    }
 
-    //Event Handlers
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    // Event Handlers
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-        if(qName.equalsIgnoreCase("graph")) {
+        LOGGER.debug("TAG OPENS. Start processing..");
 
-            String edgeDefault = attributes.getValue("edgedefault");
+        if (qName.equalsIgnoreCase(TAG_GRAPH)) {
+            LOGGER.debug("Processing tag.." + TAG_GRAPH);
 
-//            if (edgeDefault.compareToIgnoreCase("directed") == 0) { TODO create directed or undirected graphs!
-                graph = new SetBasedDirectedGraph();
-  //          } else {
-    //            graph = new SetBasedUndirectedGraph();
-      //      }
+            graph = new SetBasedDirectedGraph();
 
-            String id = attributes.getValue("id");
+            String id = attributes.getValue(ATTRIBUTE_ID);
             if (id != null) {
                 graph.setProperty(GraphProperties.LABEL, id);
             }
-		}
-
-
-        if(qName.equalsIgnoreCase("node")) { // TODO make order independent!
-            String id = attributes.getValue("id");
-            if (id != null) {
-                DirectedNodeInterface node = graph.createNode(id);
-                node.setProperty(GraphProperties.LABEL, id);
-
-                graph.addNode(node);
-            }
         }
 
-        if(qName.equalsIgnoreCase("edge")) { // TODO make order independent!
-            DirectedEdgeInterface edge = null;
 
-            String id = attributes.getValue("id");
+        if (qName.equalsIgnoreCase(TAG_NODE)) {
+            LOGGER.debug("Processing tag.." + TAG_NODE);
 
+            String id = attributes.getValue(ATTRIBUTE_ID);
+            createNode(id);
+        }
 
-            String source = attributes.getValue("source");
-            DirectedNodeInterface sourceNode = (DirectedNodeInterface) graph.getNode(source);
+        if (qName.equalsIgnoreCase(TAG_EDGE)) {
+            LOGGER.debug("Processing tag.." + TAG_EDGE);
 
-            if (sourceNode == null) { // TODO add logger
-                System.out.println("Fatal error!");
-                System.out.println("    Can't create edge " + id);
-                System.out.println("    Because node does not exist! " + source);
-            }
+            DirectedEdgeInterface edge;
 
+            String id = attributes.getValue(ATTRIBUTE_ID);
 
-            String target = attributes.getValue("target");
-            DirectedNodeInterface targetNode = (DirectedNodeInterface) graph.getNode(target);
+            String source = attributes.getValue(ATTRIBUTE_EDGE_SOURCE);
+            DirectedNodeInterface sourceNode = (DirectedNodeInterface) getNode(source);
 
-            if (targetNode == null) { // TODO add logger
-                System.out.println("Fatal error!");
-                System.out.println("    Can't create edge " + id);
-                System.out.println("    Because node does not exist! " + target);
-            }
-
+            String target = attributes.getValue(ATTRIBUTE_EDGE_TARGET);
+            DirectedNodeInterface targetNode = (DirectedNodeInterface) getNode(target);
 
             if (id != null) {
                 edge = graph.createEdge(id, sourceNode, targetNode);
@@ -111,30 +102,58 @@ public class GraphMLParser extends DefaultHandler {
                 edge = graph.createEdge(source + "-->" + target, sourceNode, targetNode);
             }
 
-
             if (edge != null) {
                 graph.addEdge(edge);
             }
+
         }
 
-	}
+        LOGGER.debug("TAG OPENS. Processing done.");
+    }
 
+    public void endElement(String uri, String localName, String qName) throws SAXException {
 
-/*
-	public void characters(char[] ch, int start, int length) throws SAXException {
-		tempVal = new String(ch, start, length);
-        System.out.println(tempVal);
-	}
-*/
+        LOGGER.debug("TAG CLOSES");
 
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-
-		if(qName.equalsIgnoreCase("graph")) {
-			//add it to the list
-		    graphs.add(graph);
+        if (qName.equalsIgnoreCase(TAG_GRAPH)) {
+            // add it to the list
+            graphs.add(graph);
             graph = null;
-		}
+        }
 
-	}
+        LOGGER.debug("TAG CLOSES. Processing done.");
+    }
+
+    private NodeInterface getNode(Object key) {
+        NodeInterface node = graph.getNode(key);
+
+        if (node == null) {
+            LOGGER.debug("Node does not exist. Creating..");
+            node = createNode(key);
+        }
+
+        return node;
+    }
+
+    private NodeInterface createNode(Object key) {
+        NodeInterface node = null;
+
+        if (key != null) {
+            LOGGER.debug("Creating node with key: '" + key + "'");
+
+            node = graph.createNode(key);
+            node.setProperty(GraphProperties.LABEL, key);
+
+            LOGGER.debug("Adding node to graph.");
+
+            graph.addNode((DirectedNodeInterface) node);
+
+            LOGGER.debug("Done.");
+        } else {
+            LOGGER.error("Cannt create node! No node 'id' attribute detected!!");
+        }
+
+        return node;
+    }
 
 }

@@ -1,10 +1,8 @@
 package com.vady.da4124;
 
 import com.vady.da4124.parser.GraphMLParser;
-import com.sun.deploy.security.KeychainCertificateStore;
 import grail.interfaces.DirectedGraphInterface;
 import grail.interfaces.NodeInterface;
-import grail.interfaces.EdgeInterface;
 import grail.interfaces.DirectedEdgeInterface;
 import grail.properties.GraphProperties;
 import static org.junit.Assert.*;
@@ -15,7 +13,7 @@ import java.io.File;
 import java.util.List;
 
 
-public class AppTest {
+public class GraphMLParserTest {
 
     @Test
     public void testParserOnGraph10() {
@@ -57,9 +55,6 @@ public class AppTest {
 
         DirectedGraphInterface graph = (DirectedGraphInterface) graphs.get(0);
 
-        NodeInterface node = graph.getNode("EGZ");
-        assertNull(node);
-
         assertEquals(100, graph.nodeCount());
         assertEquals(163, graph.edgeCount());
 
@@ -80,6 +75,31 @@ public class AppTest {
 
         assertEquals(node1, edge.getFrom());
         assertEquals(node2, edge.getTo());
+    }
+
+    @Test
+    public void testOnUnorderedGraph() { // edge definition goes earlier then node definition. should work!
+        File file = new File("unordered.graphml");
+
+
+        GraphMLParser graphMLParser = new GraphMLParser();
+        List graphs = graphMLParser.load(file);
+
+        assertNotNull(graphs);
+        assertFalse(graphs.isEmpty());
+        assertEquals(1, graphs.size());
+
+        DirectedGraphInterface graph = (DirectedGraphInterface) graphs.get(0);
+
+        assertNotNull(graph);
+        assertEquals(10, graph.nodeCount());
+        assertEquals(17, graph.edgeCount());
+
+        NodeInterface node = graph.getNode("n0");
+        assertNotNull(node);
+
+        assertEquals("n0", node.getKey());
+        assertEquals("n0", node.getProperty(GraphProperties.LABEL));
     }
 
 }
