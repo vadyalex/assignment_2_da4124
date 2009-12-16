@@ -16,6 +16,13 @@
             <scope>test</scope>
         </dependency>
 
+
+        <dependency>
+            <groupId>grail</groupId>
+            <artifactId>grail</artifactId>
+            <version>1.9</version>          
+        </dependency>
+
     </dependencies>
 
 </project>
