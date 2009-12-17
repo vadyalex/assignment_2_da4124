@@ -102,4 +102,30 @@ public class GraphMLParserTest {
         assertEquals("n0", node.getProperty(GraphProperties.LABEL));
     }
 
+
+    @Test
+    public void testYedGraph() {
+        File file = new File("tree18.graphml");
+
+
+        GraphMLParser graphMLParser = new GraphMLParser();
+        List graphs = graphMLParser.load(file);
+
+        assertNotNull(graphs);
+        assertFalse(graphs.isEmpty());
+        assertEquals(1, graphs.size());
+
+        DirectedGraphInterface graph = (DirectedGraphInterface) graphs.get(0);
+
+        assertNotNull(graph);
+        assertEquals(18, graph.nodeCount());
+        assertEquals(17, graph.edgeCount());
+
+        NodeInterface node = graph.getNode("n0");
+        assertNotNull(node);
+
+        assertEquals("n0", node.getKey());
+        assertEquals("n0", node.getProperty(GraphProperties.LABEL));
+    }
+
 }
