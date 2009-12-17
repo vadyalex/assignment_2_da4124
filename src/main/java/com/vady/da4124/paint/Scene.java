@@ -29,7 +29,8 @@ public class Scene {
     private static final Integer NODE_SIZE = 50;
 
     private GraphMLParser graphMLParser = new GraphMLParser(); // TODO maybe use factory in the future to load another file formats (GML, etc..)
-    private GraphLayout layout = new GridGraphLayout();
+    //private GraphLayout layout = new GridGraphLayout();
+    private GraphLayout layout = new TreeGraphLayout();
 
     private DirectedGraphInterface graph;
 

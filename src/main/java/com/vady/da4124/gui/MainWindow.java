@@ -37,6 +37,8 @@ public static Logger logger = Logger.getLogger(MainWindow.class);
     }
 
     public void paint(Graphics graphics) {
-        scene.draw(graphics);
+        if (scene != null) {
+            scene.draw(graphics);
+        }
     }
 }
