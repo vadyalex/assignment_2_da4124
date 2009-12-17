@@ -2,7 +2,6 @@ package com.vady.da4124.paint;
 
 import com.vady.da4124.parser.GraphMLParser;
 import com.vady.da4124.layout.*;
-import com.vady.da4124.layout.GridGraphLayout;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -39,6 +38,8 @@ public class Scene {
 
     private DirectedGraphInterface graph;
 
+    private JFrame mainWindow;
+
 
     private Scene() {
 
@@ -46,10 +47,14 @@ public class Scene {
 
     public void init() {
         if (graphFile != null) {
-            graphMLParser = new GraphMLParser(); // TODO maybe use factory in the future to load another file formats (GML, etc..)
+            if (graphMLParser == null) {
+                graphMLParser = new GraphMLParser(); // TODO maybe use factory in the future to load another file formats (GML, etc..)
+            }
             graph = (DirectedGraphInterface) graphMLParser.load(graphFile).get(0); // TODO program draws only first graph(!) in graphml file!
 
-            layout = new TreeGraphLayout();
+            if (layout == null) {
+                layout = new TreeGraphLayout();
+            }
             layout.computeLayout(graph);
         } else {
             LOGGER.error("Initialize failed. No graph file selected..");
@@ -63,18 +68,18 @@ public class Scene {
     }
 
     public void setGraphFile(File file) {
-        setGraphFile(file);
+        this.graphFile = file;
     }
 
     public void draw(Graphics graphics) {
-        Graphics2D g2 = (Graphics2D) graphics;
+        if (graph != null) {
+            Graphics2D g2 = (Graphics2D) graphics;
 
-        drawNodes(g2);
+            drawNodes(g2);
 
-        drawEdges(g2);
-
+            drawEdges(g2);
+        }
     }
-
 
     private void drawNodes(Graphics2D g2) {
         NodeIterator nodeIterator = graph.nodes();
@@ -134,6 +139,8 @@ public class Scene {
         g2.drawLine(x1+shift, y1+shift, x2+shift, y2+shift);
     }
 
+
+/*
     private GeneralPath getPath(Rectangle r1, Rectangle r2) {
         int barb = 20;
         double phi = Math.toRadians(20);
@@ -192,6 +199,35 @@ public class Scene {
                 break;
         }
         return p;
+    }
+*/
+
+    public void repaint() {
+        if (mainWindow != null) {
+            mainWindow.repaint();
+        }
+    }
+
+    public void setMainWindow(JFrame mainWindow) {
+        this.mainWindow = mainWindow;
+    }
+
+    public void changeX(int value) {
+        TreeGraphLayout treeLayout = (TreeGraphLayout) layout;
+        treeLayout.setStepX(treeLayout.getStepX() + value);
+
+        if (treeLayout.getStepX() < 50) {
+            treeLayout.setStepX(50);
+        }
+    }
+
+    public void changeY(int value) {
+        TreeGraphLayout treeLayout = (TreeGraphLayout) layout;
+        treeLayout.setStepY(treeLayout.getStepY() + value);
+
+        if (treeLayout.getStepY() < 0) {
+            treeLayout.setStepY(0);
+        }
     }
 
 }

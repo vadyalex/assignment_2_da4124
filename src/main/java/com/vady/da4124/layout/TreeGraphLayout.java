@@ -7,7 +7,6 @@ import grail.properties.GraphProperties;
 import grail.algorithms.FindRootNode;
 
 import org.apache.log4j.Logger;
-import com.vady.da4124.util.GraphUtil;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -18,8 +17,9 @@ public class TreeGraphLayout implements GraphLayout {
 
     private static final Logger LOGGER = Logger.getLogger(TreeGraphLayout.class);
 
-    private static final int Y_STEP = 55;
-    private static final int X_STEP = 55;
+    private int stepY = 55;
+
+    private int stepX = 55;
 
 
     protected Map<DirectedNodeInterface, Integer> basePositions = new HashMap<DirectedNodeInterface, Integer>();
@@ -34,14 +34,14 @@ public class TreeGraphLayout implements GraphLayout {
 
         calculateDimensionX(graph, root);
 
-        currentPoint.x += this.basePositions.get(root)/2 + X_STEP;
+        currentPoint.x += this.basePositions.get(root)/2 + stepX;
 
         buildTree(graph, root, this.currentPoint.x);
     }
 
     protected void buildTree(DirectedGraphInterface graph, DirectedNodeInterface node, int x) {
 
-            currentPoint.y += Y_STEP;
+            currentPoint.y += stepY;
             currentPoint.x = x;
 
             node.setProperty(GraphProperties.X, currentPoint.getX());
@@ -64,10 +64,10 @@ public class TreeGraphLayout implements GraphLayout {
 
                 buildTree(graph, element, startXofChild);
 
-                lastX = lastX + sizeXofChild + X_STEP;
+                lastX = lastX + sizeXofChild + stepX;
             }
 
-            this.currentPoint.y -= Y_STEP;
+            this.currentPoint.y -= stepY;
     }
 
     protected int calculateDimensionX(DirectedGraphInterface graph, DirectedNodeInterface root) {
@@ -79,14 +79,30 @@ public class TreeGraphLayout implements GraphLayout {
             NodeIterator it = graph.getSuccessors(root);
             while(it.hasNext()) {
                 it.next();
-                size += calculateDimensionX(graph, (DirectedNodeInterface) it.getNode()) + X_STEP;
+                size += calculateDimensionX(graph, (DirectedNodeInterface) it.getNode()) + stepX;
             }
         }
-        size = Math.max(0, size - X_STEP);
+        size = Math.max(0, size - stepX);
         basePositions.put(root, size);
 
         return size;
     }
 
+
+    public int getStepY() {
+        return stepY;
+    }
+
+    public void setStepY(int stepY) {
+        this.stepY = stepY;
+    }
+
+    public int getStepX() {
+        return stepX;
+    }
+
+    public void setStepX(int stepX) {
+        this.stepX = stepX;
+    }
 
 }

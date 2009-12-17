@@ -14,16 +14,8 @@ public class App {
 
     public static void main( String[] args ) {
 
-        if (args.length == 0) {
-            LOGGER.fatal("No graph file selected..");
-            LOGGER.fatal("  please add graph file name as parameter: java <..> com.vady.da4124.App someFile.graphml ]");
+        System.setProperty("apple.laf.useScreenMenuBar", "true");  // for MacOS X only
 
-            return;
-        }
-
-        Scene.instance.selectFile();
-        Scene.instance.init();
-
-        new MainWindow();
+        Scene.instance.setMainWindow(new MainWindow());
     }
 }

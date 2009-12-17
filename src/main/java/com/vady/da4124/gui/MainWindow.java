@@ -18,7 +18,7 @@ public static Logger logger = Logger.getLogger(MainWindow.class);
     }
 
     private void initGuiElements() {
-        //this.setJMenuBar(new MainMenu(this));
+        this.setJMenuBar(new MainMenu());
 
         this.setTitle("Assignment 2 [DA4124]");
 
@@ -30,6 +30,7 @@ public static Logger logger = Logger.getLogger(MainWindow.class);
     }
 
     public void paint(Graphics graphics) {
+        super.paintComponents(graphics);
         Scene.instance.draw(graphics);
     }
 }
