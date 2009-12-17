@@ -21,8 +21,9 @@ public class App {
             return;
         }
 
-        String graphFile = args[0];
+        Scene.instance.selectFile();
+        Scene.instance.init();
 
-        new MainWindow(new Scene(graphFile));
+        new MainWindow();
     }
 }

@@ -52,7 +52,7 @@
 
                     <archive>
                         <manifest>
-                            <mainClass></mainClass> <!-- TODO add later -->
+                            <mainClass>com.vady.da4124.App</mainClass>
                         </manifest>
                     </archive>
 

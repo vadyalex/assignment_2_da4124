@@ -17,8 +17,9 @@ import java.awt.*;
 public class TreeGraphLayout implements GraphLayout {
 
     private static final Logger LOGGER = Logger.getLogger(TreeGraphLayout.class);
-    private static final int Y_STEP = 100;
-    private static final int X_STEP = 100;
+
+    private static final int Y_STEP = 55;
+    private static final int X_STEP = 55;
 
 
     protected Map<DirectedNodeInterface, Integer> basePositions = new HashMap<DirectedNodeInterface, Integer>();

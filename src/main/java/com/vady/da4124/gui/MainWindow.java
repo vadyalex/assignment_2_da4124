@@ -12,16 +12,9 @@ public class MainWindow extends JFrame {
 
 public static Logger logger = Logger.getLogger(MainWindow.class);
 
-    Scene scene;
 
-    private MainWindow() {
-        
-    }
-
-    public MainWindow(Scene scene) {
+    public MainWindow() {
         initGuiElements();
-
-        this.scene = scene;
     }
 
     private void initGuiElements() {
@@ -37,8 +30,6 @@ public static Logger logger = Logger.getLogger(MainWindow.class);
     }
 
     public void paint(Graphics graphics) {
-        if (scene != null) {
-            scene.draw(graphics);
-        }
+        Scene.instance.draw(graphics);
     }
 }

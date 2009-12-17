@@ -21,26 +21,50 @@ import grail.iterators.EdgeIterator;
 import grail.properties.GraphProperties;
 import org.apache.log4j.Logger;
 
+import javax.swing.*;
+
 
 public class Scene {
+
+    public static final Scene instance = new Scene();
 
     private static final Logger LOGGER = Logger.getLogger(Scene.class);
 
     private static final Integer NODE_SIZE = 50;
 
-    private GraphMLParser graphMLParser = new GraphMLParser(); // TODO maybe use factory in the future to load another file formats (GML, etc..)
-    //private GraphLayout layout = new GridGraphLayout();
-    private GraphLayout layout = new TreeGraphLayout();
+    private File graphFile;
+
+    private GraphMLParser graphMLParser;
+    private GraphLayout layout;
 
     private DirectedGraphInterface graph;
 
 
-    public Scene(String graphFile) {
-        graph = (DirectedGraphInterface) graphMLParser.load(new File(graphFile)).get(0); // TODO program draws only first graph(!) in graphml file!
+    private Scene() {
 
-        layout.computeLayout(graph);
     }
 
+    public void init() {
+        if (graphFile != null) {
+            graphMLParser = new GraphMLParser(); // TODO maybe use factory in the future to load another file formats (GML, etc..)
+            graph = (DirectedGraphInterface) graphMLParser.load(graphFile).get(0); // TODO program draws only first graph(!) in graphml file!
+
+            layout = new TreeGraphLayout();
+            layout.computeLayout(graph);
+        } else {
+            LOGGER.error("Initialize failed. No graph file selected..");
+        }
+    }
+
+    public void selectFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.showOpenDialog(null);
+        setGraphFile(fileChooser.getSelectedFile());
+    }
+
+    public void setGraphFile(File file) {
+        setGraphFile(file);
+    }
 
     public void draw(Graphics graphics) {
         Graphics2D g2 = (Graphics2D) graphics;
